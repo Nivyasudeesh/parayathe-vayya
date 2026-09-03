@@ -18,7 +18,14 @@ Example tone for 'villain' mode:
 User: "You always take credit for my work."
 Nemesis: "Take credit? I TAKE WHAT I— ...okay actually now that I say it out loud that's kind of a jerk move, huh."`;
 
-async function callGemini(model: string, body: unknown) {
+const TEXT_MODELS = [
+  "gemini-3.5-flash",
+  "gemini-3.7-flash",
+  "gemini-3.5-flash-lite",
+  "gemini-3.6-flash",
+];
+
+async function callGeminiSingle(model: string, body: unknown) {
   const key = process.env["GEMINI_API_KEY"];
   if (!key) throw new Error("AI is not configured yet.");
   const res = await fetch(`${GEMINI_API}/${model}:generateContent`, {
@@ -30,19 +37,64 @@ async function callGemini(model: string, body: unknown) {
     body: JSON.stringify(body),
   });
   const responseBody = (await res.json()) as any;
-  if (res.status === 429)
-    throw new Error("Too many rants at once. Give it a second.");
+  if (res.status === 429) {
+    const retryDelay = responseBody?.error?.details?.find((d: any) => d["@type"]?.includes("RetryInfo"))?.retryDelay;
+    const msg = retryDelay
+      ? `Too many rants at once. Cool down for ${retryDelay}.`
+      : "Too many rants at once. Give it a few seconds.";
+    const err: any = new Error(msg);
+    err.status = 429;
+    throw err;
+  }
   if (res.status === 401 || res.status === 403)
     throw new Error("The Gemini API key was rejected.");
   if (!res.ok) {
     const detail = responseBody?.error?.message;
-    throw new Error(
+    const err: any = new Error(
       detail
         ? `Gemini API error: ${detail}`
         : `The nemesis is ignoring you (${res.status}).`,
     );
+    err.status = res.status;
+    throw err;
   }
   return responseBody;
+}
+
+async function callGemini(preferredModel: string, body: unknown) {
+  // Try preferred model first, then failover through available models
+  const modelsToTry = [
+    preferredModel,
+    ...TEXT_MODELS.filter((m) => m !== preferredModel),
+  ];
+
+  let lastError: Error | null = null;
+  for (const model of modelsToTry) {
+    try {
+      return await callGeminiSingle(model, body);
+    } catch (err: any) {
+      lastError = err;
+      // If 429 (quota), 503 (demand spike), or 404 (deprecated), fail over to next model
+      const msg = err?.message || "";
+      if (
+        err?.status === 429 ||
+        err?.status === 503 ||
+        err?.status === 404 ||
+        msg.includes("Too many rants") ||
+        msg.includes("quota") ||
+        msg.includes("demand") ||
+        msg.includes("no longer available")
+      ) {
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw (
+    lastError ||
+    new Error("Too many rants at once across all models. Please wait 15 seconds.")
+  );
 }
 
 export const createNemesis = createServerFn({ method: "POST" })
@@ -50,8 +102,8 @@ export const createNemesis = createServerFn({ method: "POST" })
     z.object({ description: z.string().min(3).max(600) }).parse(data),
   )
   .handler(async ({ data }) => {
-    // Generate nickname and traits first using gemini-3.6-flash
-    const nickPromise = callGemini("gemini-3.6-flash", {
+    // Generate nickname and traits first using high-availability flash models
+    const nickPromise = callGemini("gemini-3.5-flash", {
       systemInstruction: {
         parts: [
           {
@@ -62,16 +114,13 @@ export const createNemesis = createServerFn({ method: "POST" })
       contents: [{ role: "user", parts: [{ text: data.description }] }],
     });
 
-    // Attempt cartoon image generation, but gracefully catch quota/model errors
-    const imagePromise = callGemini("gemini-2.5-flash-image", {
+    // Attempt cartoon image generation, gracefully fallback to cartoon DiceBear without console spam
+    const imagePromise = callGeminiSingle("gemini-2.5-flash-image", {
       contents: [
         { role: "user", parts: [{ text: AVATAR_PROMPT(data.description) }] },
       ],
       generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
-    }).catch((err) => {
-      console.warn("Avatar image generation unavailable:", err?.message || err);
-      return null;
-    });
+    }).catch(() => null);
 
     const [nickJson, imageJson] = await Promise.all([nickPromise, imagePromise]);
 
@@ -120,7 +169,7 @@ export const ventToNemesis = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const systemInstruction = `${SYSTEM_PROMPT}\n\nCurrent Mode: '${data.mode}'. Strictly adhere to the instructions for mode '${data.mode}'.\nYou are currently playing the character nicknamed "${data.nickname}", built from this description: ${data.description}`;
-    const json = await callGemini("gemini-3.6-flash", {
+    const json = await callGemini("gemini-3.5-flash", {
       systemInstruction: { parts: [{ text: systemInstruction }] },
       contents: data.messages.map((message) => ({
         role: message.role === "assistant" ? "model" : "user",

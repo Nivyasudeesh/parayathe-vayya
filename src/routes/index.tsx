@@ -30,6 +30,22 @@ export const Route = createFileRoute("/")({
 type Msg = { role: "user" | "assistant"; content: string };
 type NemesisMode = "pushover" | "villain";
 
+const VENT_SPARKS = [
+  "🐟 Microwaves fish at 9 AM",
+  "📧 Replies-all with 'Thanks!'",
+  "☕ Steals labeled oat milk",
+  "📆 Books 4:59 PM Friday meetings",
+  "🎧 Loud mechanical keyboard on Zoom",
+  "👀 'Per my last email' with smiley faces",
+];
+
+function getRantBadge(count: number) {
+  if (count > 8) return { emoji: "🌋", label: "Volcanic Tantrum", color: "bg-brand text-ink" };
+  if (count > 5) return { emoji: "🔥", label: "Boiling Teapot", color: "bg-brand/80 text-ink" };
+  if (count > 2) return { emoji: "😤", label: "Grumpy Pufferfish", color: "bg-accent-yellow text-ink" };
+  return { emoji: "😊", label: "Mildly Pouted", color: "bg-surface text-ink" };
+}
+
 function DearNoBody() {
   const create = useServerFn(createNemesis);
   const vent = useServerFn(ventToNemesis);
@@ -48,11 +64,29 @@ function DearNoBody() {
   const [busy, setBusy] = useState(false);
   const [thinking, setThinking] = useState(false);
   const [poof, setPoof] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportStats, setReportStats] = useState<{
+    rantCount: number;
+    rivalName: string;
+    mode: NemesisMode;
+  } | null>(null);
+
   const chatEnd = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     chatEnd.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, thinking]);
+
+  function addSpark(spark: string) {
+    const clean = spark.replace(/^[\p{Emoji}\s]+/u, "").trim();
+    setDescription((prev) => {
+      if (!prev.trim()) return clean;
+      if (prev.includes(clean)) return prev;
+      return `${prev.trim()}, ${clean}`;
+    });
+    setWarning(null);
+  }
 
   async function summon() {
     const found = detectPii(description);
@@ -71,12 +105,12 @@ function DearNoBody() {
           role: "assistant",
           content:
             mode === "villain"
-              ? "Mwahaha! You dare summon ME?! Prepare to face my unbridled genius! ...Wait, why are you glaring at me? What did I do now?"
-              : "Oh good, you're here. Let me guess — this is somehow my fault.",
+              ? "MWAHAHA! You dare summon ME?! Prepare to face my unbridled genius! ...Wait, why are you glaring at me? What did I do now?"
+              : "Oh good, you're here. Let me guess — this is somehow my fault. (Sighs... I'm already sorry).",
         },
       ]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something broke. Try again.");
+      setError(e instanceof Error ? e.message : "The nemesis got scared and ran away. Try again!");
     } finally {
       setBusy(false);
     }
@@ -106,10 +140,31 @@ function DearNoBody() {
       });
       setMessages([...next, { role: "assistant", content: reply }]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "The nemesis is buffering.");
+      setError(e instanceof Error ? e.message : "The nemesis choked on their words. Try again!");
     } finally {
       setThinking(false);
     }
+  }
+
+  function requestErase() {
+    setShowConfirmModal(true);
+  }
+
+  function handleConfirmErase() {
+    const userRants = messages.filter((m) => m.role === "user").length;
+    setReportStats({
+      rantCount: userRants,
+      rivalName: nemesis?.nickname || "Your Nemesis",
+      mode,
+    });
+    setShowConfirmModal(false);
+    setShowReportModal(true);
+  }
+
+  function handleFinishReport() {
+    setShowReportModal(false);
+    setReportStats(null);
+    endSession();
   }
 
   function endSession() {
@@ -129,9 +184,11 @@ function DearNoBody() {
   useEffect(() => {
     if (!poof) return;
     setPoofNote(true);
-    const t = window.setTimeout(() => setPoofNote(false), 4000);
+    const t = window.setTimeout(() => setPoofNote(false), 4500);
     return () => window.clearTimeout(t);
   }, [poof]);
+
+  const rantBadge = getRantBadge(messages.length);
 
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col bg-paper text-ink font-body select-none relative">
@@ -140,8 +197,10 @@ function DearNoBody() {
         <main className="flex-1 grid lg:grid-cols-12 bg-paper relative">
           {/* Top-Right Controls for Setup Screen */}
           <div className="absolute top-3 right-4 md:top-4 md:right-8 z-20 flex items-center gap-3">
-            <nav className="hidden sm:flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] bg-surface/90 backdrop-blur border border-ink/20 px-3 py-1.5 rounded-lg shadow-sm">
-              <span className="text-brand">01 Describe & Mode</span>
+            <nav className="hidden sm:flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] bg-surface/90 backdrop-blur border-2 border-ink px-3 py-1.5 rounded-full shadow-[2px_2px_0px_0px_var(--color-ink)]">
+              <span className="text-brand flex items-center gap-1">
+                <span>🎨</span> 01 Setup
+              </span>
               <span className="text-ink/30">/</span>
               <span className="text-ink/40">02 Vent</span>
               <span className="text-ink/30">/</span>
@@ -149,63 +208,77 @@ function DearNoBody() {
             </nav>
             <ThemeToggle />
           </div>
-          {/* Left Column: Hero & Poster */}
+
+          {/* Left Column: Comic Hero & Mascot Poster */}
           <section className="lg:col-span-5 border-b-2 lg:border-b-0 lg:border-r-2 border-ink p-6 md:p-10 flex flex-col justify-between relative overflow-hidden bg-paper">
-            <div className="diagonal absolute inset-0 opacity-[0.05] pointer-events-none" />
+            <div className="comic-dots absolute inset-0 opacity-[0.07] pointer-events-none" />
             <div className="relative z-10">
-              <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand">
-                No session yet
-              </p>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className="slant bg-accent-yellow px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-ink border-2 border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                  🥊 Punchable Cartoon Therapy
+                </span>
+                <span className="slant bg-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-ink border-2 border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                  🗯️ 100% Fictional
+                </span>
+              </div>
 
               {/* Prominent Project Name */}
               <div className="mt-3">
                 <span className="slant inline-block bg-ink px-3 py-1 font-display text-2xl sm:text-3xl lg:text-4xl tracking-wide text-paper shadow-[3px_3px_0px_0px_var(--color-brand)]">
                   പറയാതെ വയ്യ
                 </span>
-                <h1 className="mt-2 font-display text-4xl sm:text-5xl lg:text-6xl uppercase leading-[0.88] tracking-tight">
+                <h1 className="mt-2 font-display text-4xl sm:text-5xl lg:text-6xl uppercase leading-[0.88] tracking-tight flex items-center gap-2">
                   Parayathe <span className="text-brand">Vayya</span>
+                  <span className="text-3xl animate-bounce">💢</span>
                 </h1>
               </div>
 
-              {/* Appropriately Sized Tagline */}
-              <p className="mt-3 font-display text-lg sm:text-xl uppercase tracking-wide text-brand flex items-center gap-2">
-                <span className="h-1.5 w-5 bg-brand inline-block" />
-                Take it out on nobody.
+              {/* Playful Tagline */}
+              <div className="mt-3 inline-flex items-center gap-2 bg-surface border-2 border-ink px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                <span className="text-sm">💬</span>
+                <p className="font-display text-base sm:text-lg uppercase tracking-wide text-brand">
+                  Take it out on nobody!
+                </p>
+              </div>
+
+              <p className="mt-3 max-w-md text-sm font-medium text-ink/75 leading-relaxed md:text-base">
+                Got someone who chews loudly or steals your lunch? Invent a silly cartoon caricature, pick their personality, vent all your frustration, and watch their confidence hilariously crumble!
               </p>
 
-              <p className="mt-3 max-w-md text-sm font-medium text-ink/70 leading-relaxed md:text-base">
-                Describe your fictional nemesis, pick their personality, blow off steam, and watch them comically collapse. Everything vanishes when the session ends.
-              </p>
               {poofNote && (
-                <div className="mt-4">
-                  <p className="slant inline-block bg-accent-yellow px-3 py-1 font-display text-base uppercase text-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
-                    Poof. Gone. Feel better?
+                <div className="mt-4 animate-bounce">
+                  <p className="slant inline-flex items-center gap-2 bg-accent-yellow px-3.5 py-1.5 font-display text-base uppercase text-ink border-2 border-ink shadow-[3px_3px_0px_0px_var(--color-ink)]">
+                    <span>✨</span> Poof! Vanished forever into the void! Feel lighter?
                   </p>
                 </div>
               )}
             </div>
 
             <div className="relative z-10 mt-6 pt-6 border-t-2 border-ink/10 hidden sm:block">
-              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/50">
-                <span className="h-2 w-2 rounded-full bg-brand animate-pulse" />
-                Ephemeral session • Zero data stored • 100% fictional
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-ink/60">
+                <span className="h-2 w-2 rounded-full bg-brand animate-ping" />
+                🪄 Nothing is saved • No logs • Everything poofs when done
               </div>
             </div>
           </section>
 
-          {/* Right Column: Setup Form & Mode Selector */}
+          {/* Right Column: Setup Form & Comedy Mode Selector */}
           <section className="lg:col-span-7 p-6 md:p-10 flex flex-col justify-center overflow-y-auto">
-            <div className="max-w-xl mx-auto w-full space-y-5">
+            <div className="max-w-xl mx-auto w-full space-y-5 pt-8 sm:pt-0">
               {/* Step 01: Description */}
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="slant bg-brand px-2 py-0.5 font-display text-xs text-ink">
-                    STEP 01
-                  </span>
-                  <label htmlFor="nemesis-description" className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/50">
-                    Describe your nemesis
-                  </label>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="slant bg-brand px-2 py-0.5 font-display text-xs text-ink border border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                      STEP 01
+                    </span>
+                    <label htmlFor="nemesis-description" className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink/60">
+                      Who is your comedic rival?
+                    </label>
+                  </div>
+                  <span className="text-[10px] font-semibold text-ink/40">Keep it silly!</span>
                 </div>
+
                 <textarea
                   id="nemesis-description"
                   value={description}
@@ -214,22 +287,42 @@ function DearNoBody() {
                     setWarning(null);
                   }}
                   rows={3}
-                  placeholder="Traits, annoying habits, vibe. Hijacks meetings, microwaves fish, replies-all with 'Thanks!'…"
-                  className="mt-2 w-full resize-none rounded-lg border-2 border-ink bg-surface px-4 py-2.5 text-sm font-medium placeholder:text-ink/30 focus:border-brand focus:outline-none transition-colors"
+                  placeholder="Traits, annoying habits, vibe. e.g. Hijacks meetings, microwaves fish, writes 'per my last email' with smiley faces…"
+                  className="mt-2 w-full resize-none rounded-xl border-2 border-ink bg-surface px-4 py-3 text-sm font-medium placeholder:text-ink/35 focus:border-brand focus:outline-none transition-colors shadow-[3px_3px_0px_0px_var(--color-ink)]"
                 />
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-ink/40">
-                  No real names or photos — this stays strictly fictional and silly.
+
+                {/* Quick Vent Sparks (Clickable comedy ideas) */}
+                <div className="mt-2.5">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-ink/50 mb-1.5 flex items-center gap-1">
+                    <span>💡</span> Click an annoying habit spark to add:
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {VENT_SPARKS.map((spark, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => addSpark(spark)}
+                        className="text-[11px] font-semibold bg-surface hover:bg-accent-yellow border border-ink/40 hover:border-ink px-2.5 py-1 rounded-full cursor-pointer transition-all hover:scale-105 active:scale-95 shadow-xs"
+                      >
+                        {spark}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-ink/40 flex items-center gap-1">
+                  <span>🔒</span> Strictly fictional — no real names or public figures.
                 </p>
               </div>
 
               {/* Step 02: Mode Selector */}
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="slant bg-accent-yellow px-2 py-0.5 font-display text-xs text-ink">
+                  <span className="slant bg-accent-yellow px-2 py-0.5 font-display text-xs text-ink border border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
                     STEP 02
                   </span>
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/50">
-                    Select Nemesis Personality
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink/60">
+                    Pick Their Personality Style
                   </span>
                 </div>
 
@@ -238,33 +331,29 @@ function DearNoBody() {
                   <button
                     type="button"
                     onClick={() => setMode("pushover")}
-                    className={`group relative flex flex-col items-start rounded-lg border-2 p-3.5 text-left transition-all cursor-pointer ${
+                    className={`group relative flex flex-col items-start rounded-2xl border-2 p-3.5 text-left transition-all cursor-pointer ${
                       mode === "pushover"
-                        ? "border-brand bg-brand/10 shadow-[3px_3px_0px_0px_var(--color-ink)]"
-                        : "border-ink/20 bg-surface/50 hover:border-ink/60"
+                        ? "border-ink bg-surface shadow-[4px_4px_0px_0px_var(--color-brand)] scale-[1.01]"
+                        : "border-ink/30 bg-surface/50 hover:border-ink hover:bg-surface/80"
                     }`}
                   >
                     <div className="flex w-full items-center justify-between">
                       <span
-                        className={`slant px-2 py-0.5 font-display text-xs uppercase tracking-wide ${
+                        className={`slant px-2.5 py-0.5 font-display text-xs uppercase tracking-wide border border-ink shadow-[1px_1px_0px_0px_var(--color-ink)] ${
                           mode === "pushover"
                             ? "bg-brand text-ink"
                             : "bg-ink/10 text-ink/70"
                         }`}
                       >
-                        Pushover
+                        🥺 The Pushover
                       </span>
-                      <span
-                        className={`h-3 w-3 rounded-full border-2 border-ink transition-colors ${
-                          mode === "pushover" ? "bg-brand" : "bg-transparent"
-                        }`}
-                      />
+                      <span className="text-lg">👉👈</span>
                     </div>
-                    <p className="mt-2.5 text-xs font-bold text-ink uppercase tracking-wide">
-                      Agrees & Concedes
+                    <p className="mt-2 text-xs font-bold text-ink uppercase tracking-wide">
+                      Instant Apology & Surrender
                     </p>
-                    <p className="mt-1 text-[11px] leading-relaxed text-ink/70">
-                      Quickly and warmly admits defeat with comedic, self-aware surrender.
+                    <p className="mt-1 text-[11px] leading-relaxed text-ink/70 italic">
+                      “You're totally right! I'm so sorry, please don't yell at me!”
                     </p>
                   </button>
 
@@ -272,33 +361,29 @@ function DearNoBody() {
                   <button
                     type="button"
                     onClick={() => setMode("villain")}
-                    className={`group relative flex flex-col items-start rounded-lg border-2 p-3.5 text-left transition-all cursor-pointer ${
+                    className={`group relative flex flex-col items-start rounded-2xl border-2 p-3.5 text-left transition-all cursor-pointer ${
                       mode === "villain"
-                        ? "border-brand bg-brand/10 shadow-[3px_3px_0px_0px_var(--color-ink)]"
-                        : "border-ink/20 bg-surface/50 hover:border-ink/60"
+                        ? "border-ink bg-surface shadow-[4px_4px_0px_0px_var(--color-brand)] scale-[1.01]"
+                        : "border-ink/30 bg-surface/50 hover:border-ink hover:bg-surface/80"
                     }`}
                   >
                     <div className="flex w-full items-center justify-between">
                       <span
-                        className={`slant px-2 py-0.5 font-display text-xs uppercase tracking-wide ${
+                        className={`slant px-2.5 py-0.5 font-display text-xs uppercase tracking-wide border border-ink shadow-[1px_1px_0px_0px_var(--color-ink)] ${
                           mode === "villain"
-                            ? "bg-brand text-ink"
+                            ? "bg-accent-yellow text-ink"
                             : "bg-ink/10 text-ink/70"
                         }`}
                       >
-                        Villain
+                        🦹‍♂️ Cartoon Villain
                       </span>
-                      <span
-                        className={`h-3 w-3 rounded-full border-2 border-ink transition-colors ${
-                          mode === "villain" ? "bg-brand" : "bg-transparent"
-                        }`}
-                      />
+                      <span className="text-lg">⚡</span>
                     </div>
-                    <p className="mt-2.5 text-xs font-bold text-ink uppercase tracking-wide">
-                      Dramatic Antagonist
+                    <p className="mt-2 text-xs font-bold text-ink uppercase tracking-wide">
+                      Theatrical Monologue & Collapse
                     </p>
-                    <p className="mt-1 text-[11px] leading-relaxed text-ink/70">
-                      Boastful comic supervillain monologue whose confidence instantly crumbles.
+                    <p className="mt-1 text-[11px] leading-relaxed text-ink/70 italic">
+                      “MWAHAHA! Tremble at my— ...wait, actually that was kinda mean, my bad.”
                     </p>
                   </button>
                 </div>
@@ -306,13 +391,13 @@ function DearNoBody() {
 
               {/* Warnings / Errors */}
               {warning && (
-                <p className="border-2 border-brand bg-surface px-4 py-2.5 text-xs font-semibold text-brand">
-                  {warning}
+                <p className="border-2 border-brand bg-surface px-4 py-2.5 text-xs font-semibold text-brand rounded-lg shadow-sm">
+                  ⚠️ {warning}
                 </p>
               )}
               {error && (
-                <p className="border-2 border-ink bg-surface px-4 py-2.5 text-xs font-semibold">
-                  {error}
+                <p className="border-2 border-ink bg-surface px-4 py-2.5 text-xs font-semibold rounded-lg shadow-sm">
+                  🛑 {error}
                 </p>
               )}
 
@@ -320,39 +405,40 @@ function DearNoBody() {
               <button
                 onClick={summon}
                 disabled={busy || description.trim().length < 3}
-                className="slant w-full bg-ink px-4 py-3 font-display text-lg uppercase tracking-wide text-paper transition-all hover:bg-brand hover:text-ink disabled:opacity-40 shadow-[3px_3px_0px_0px_var(--color-brand)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer"
+                className="slant w-full bg-ink px-4 py-3.5 font-display text-lg uppercase tracking-wide text-paper transition-all hover:bg-brand hover:text-ink disabled:opacity-40 shadow-[4px_4px_0px_0px_var(--color-brand)] active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2"
               >
-                {busy ? "Sketching your caricature…" : `Summon ${mode === "villain" ? "The Villain" : "The Pushover"}`}
+                <span>{busy ? "🎨 Sketching caricature…" : mode === "villain" ? "⚡ Summon The Dramatic Villain!" : "🥺 Summon The Apologetic Rival!"}</span>
               </button>
             </div>
           </section>
         </main>
       ) : (
-        /* Chat State - Covers full screen, with page scrolling enabled on small proportions */
+        /* Chat State - Covers full screen with internal scroll on desktop and page scroll on small viewports */
         <main
           className={`flex-1 grid lg:grid-cols-12 bg-paper transition-opacity duration-300 lg:min-h-0 lg:h-full lg:overflow-hidden ${
             poof ? "opacity-0" : "opacity-100"
           }`}
         >
           {/* Left Column: Nemesis Profile Panel */}
-          <section className="lg:col-span-4 xl:col-span-3 border-b-2 lg:border-b-0 lg:border-r-2 border-ink flex flex-col justify-between p-4 md:p-6 lg:overflow-y-auto bg-surface/30">
-            <div className="space-y-4">
+          <section className="lg:col-span-4 xl:col-span-3 border-b-2 lg:border-b-0 lg:border-r-2 border-ink flex flex-col justify-between p-4 md:p-6 lg:overflow-y-auto bg-surface/30 relative">
+            <div className="comic-dots absolute inset-0 opacity-[0.05] pointer-events-none" />
+            <div className="space-y-4 relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="slant bg-brand px-2 py-0.5 font-display text-xs text-ink">
+                  <span className="slant bg-brand px-2 py-0.5 font-display text-xs text-ink border border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
                     NEMESIS
                   </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/40">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
                     Your rival
                   </span>
                 </div>
-                <span className="slant bg-accent-yellow px-2 py-0.5 font-display text-[11px] uppercase tracking-wide text-ink">
-                  {mode === "villain" ? "Mode: Villain" : "Mode: Pushover"}
+                <span className="slant bg-accent-yellow px-2.5 py-0.5 font-display text-[11px] uppercase tracking-wide text-ink border border-ink shadow-[1px_1px_0px_0px_var(--color-ink)] whitespace-nowrap">
+                  {mode === "villain" ? "🦹‍♂️ Villain Mode" : "🥺 Pushover Mode"}
                 </span>
               </div>
 
-              {/* Avatar Box */}
-              <div className="relative mx-auto w-full max-w-[200px] aspect-square rounded-xl overflow-hidden bg-ink/5 border-2 border-ink shadow-[3px_3px_0px_0px_var(--color-ink)]">
+              {/* Avatar Box with Comic Accents */}
+              <div className="relative mx-auto w-full max-w-[200px] aspect-square rounded-2xl overflow-hidden bg-ink/5 border-2 border-ink shadow-[4px_4px_0px_0px_var(--color-ink)]">
                 {nemesis.avatarUrl ? (
                   <img
                     src={nemesis.avatarUrl}
@@ -364,52 +450,63 @@ function DearNoBody() {
                     Caricature unavailable
                   </div>
                 )}
-                <span className="slant absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-accent-yellow px-2.5 py-0.5 font-display text-xs text-ink border border-ink">
+                <span className="slant absolute bottom-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-accent-yellow px-3 py-1 font-display text-xs text-ink border-2 border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
                   {nemesis.nickname}
                 </span>
               </div>
 
               {/* Traits List */}
-              <div className="space-y-2 pt-1 max-h-48 overflow-y-auto pr-1">
-                {nemesis.traits.map((trait, i) => (
-                  <div key={i} className="flex items-start gap-2 bg-surface/60 border border-ink/15 rounded-md p-2 shadow-xs">
-                    <span className="slant shrink-0 bg-ink px-1.5 py-0.5 text-center text-[9px] font-bold uppercase tracking-wide text-paper mt-0.5">
-                      Trait
-                    </span>
-                    <span className="text-xs font-semibold text-ink leading-snug break-words">
-                      {trait}
-                    </span>
-                  </div>
-                ))}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50 mb-1.5 flex items-center gap-1">
+                  <span>🏷️</span> Annoying Quirks:
+                </p>
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  {nemesis.traits.map((trait, i) => (
+                    <div key={i} className="flex items-start gap-2 bg-surface border-2 border-ink/20 rounded-xl p-2 shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                      <span className="slant shrink-0 bg-ink px-1.5 py-0.5 text-center text-[9px] font-bold uppercase tracking-wide text-paper mt-0.5">
+                        Quirk
+                      </span>
+                      <span className="text-xs font-semibold text-ink leading-snug break-words">
+                        {trait}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Redraw CTA */}
-            <div className="pt-3">
+            <div className="pt-3 relative z-10">
               <button
                 onClick={summon}
                 disabled={busy}
-                className="slant w-full bg-surface border-2 border-ink px-3 py-2 font-display text-sm uppercase tracking-wide text-ink transition-colors hover:bg-brand hover:text-ink disabled:opacity-40 cursor-pointer shadow-[2px_2px_0px_0px_var(--color-ink)]"
+                className="slant w-full bg-surface border-2 border-ink px-3 py-2 font-display text-xs uppercase tracking-wide text-ink transition-all hover:bg-brand hover:text-ink disabled:opacity-40 cursor-pointer shadow-[2px_2px_0px_0px_var(--color-ink)] flex items-center justify-center gap-1.5"
               >
-                {busy ? "Redrawing…" : "Redraw caricature"}
+                <span>🎨</span> {busy ? "Redrawing…" : "Redraw caricature"}
               </button>
             </div>
           </section>
 
-          {/* Right Column: Chat Console */}
+          {/* Right Column: Comic Chat Console */}
           <section className="lg:col-span-8 xl:col-span-9 flex flex-col min-h-[480px] lg:min-h-0 lg:h-full lg:overflow-hidden bg-paper">
-            {/* Chat Sub-Header */}
+            {/* Chat Sub-Header: Chat Room with Nemesis Nickname */}
             <div className="shrink-0 flex items-center justify-between border-b-2 border-ink px-4 py-3 md:px-6 bg-surface/40 gap-3">
               <div className="min-w-0">
-                <p className="font-display text-lg uppercase tracking-wide truncate">The Vent</p>
+                <p className="font-display text-lg uppercase tracking-wide truncate flex items-center gap-1.5">
+                  <span>💬</span> Chat Room with {nemesis.nickname}
+                </p>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink/50 truncate">
-                  {mode === "villain" ? "Cartoon Villain Monologue" : "Instant Concession"}
+                  {mode === "villain" ? "Dramatic supervillain monologue • Watch it crumble" : "Instant humble apologies • Guaranteed concession"}
                 </p>
               </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <span className="slant bg-accent-yellow px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink border border-ink whitespace-nowrap">
-                  Rant level: {messages.length > 8 ? "Nuclear" : messages.length > 4 ? "High" : "Warming up"}
-                </span>
+              <div className="flex items-center gap-2.5 shrink-0">
+                {/* Comedy Rant-O-Meter */}
+                <div
+                  className={`slant px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide border-2 border-ink shadow-[2px_2px_0px_0px_var(--color-ink)] flex items-center gap-1 ${rantBadge.color}`}
+                >
+                  <span>{rantBadge.emoji}</span>
+                  <span>{rantBadge.label}</span>
+                </div>
                 <ThemeToggle />
               </div>
             </div>
@@ -419,8 +516,8 @@ function DearNoBody() {
               {messages.map((m, i) =>
                 m.role === "user" ? (
                   <div key={i} className="flex justify-end">
-                    <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-ink px-4 py-2.5 text-paper shadow-[2px_2px_0px_0px_var(--color-brand)]">
-                      <p className="mb-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-paper/50">
+                    <div className="max-w-[80%] rounded-3xl rounded-br-xs bg-ink px-4 py-3 text-paper shadow-[3px_3px_0px_0px_var(--color-brand)]">
+                      <p className="mb-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-paper/60">
                         You
                       </p>
                       <p className="text-sm font-medium leading-relaxed">{m.content}</p>
@@ -428,13 +525,13 @@ function DearNoBody() {
                   </div>
                 ) : (
                   <div key={i} className="flex justify-start">
-                    <div className="max-w-[80%] rounded-2xl rounded-bl-sm border-2 border-ink bg-surface px-4 py-2.5 shadow-[2px_2px_0px_0px_var(--color-ink)]">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-brand">
-                          {nemesis.nickname}
+                    <div className="max-w-[80%] rounded-3xl rounded-bl-xs border-2 border-ink bg-surface px-4 py-3 shadow-[3px_3px_0px_0px_var(--color-ink)]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-brand flex items-center gap-1">
+                          <span>{mode === "villain" ? "🦹‍♂️" : "🥺"}</span> {nemesis.nickname}
                         </p>
-                        <span className="text-[8px] font-bold uppercase px-1 py-0.2 bg-ink/10 rounded text-ink/60">
-                          {mode}
+                        <span className="text-[8px] font-bold uppercase px-1.5 py-0.2 bg-ink/10 rounded-full text-ink/60">
+                          {mode === "villain" ? "Dramatic collapse" : "Apologetic"}
                         </span>
                       </div>
                       <p className="text-sm font-medium leading-relaxed">{m.content}</p>
@@ -444,8 +541,9 @@ function DearNoBody() {
               )}
               {thinking && (
                 <div className="flex justify-start">
-                  <div className="rounded-2xl rounded-bl-sm border-2 border-ink bg-surface px-4 py-2.5 text-xs font-medium text-ink/50 animate-pulse">
-                    {mode === "villain" ? "plotting theatrical monologue…" : "preparing swift concession…"}
+                  <div className="rounded-3xl rounded-bl-xs border-2 border-ink bg-surface px-4 py-2.5 text-xs font-semibold text-ink/60 shadow-[2px_2px_0px_0px_var(--color-ink)] animate-pulse flex items-center gap-2">
+                    <span className="text-base">💭</span>
+                    <span>{mode === "villain" ? "Concocting dramatic evil monologue…" : "Drafting instant humble surrender…"}</span>
                   </div>
                 </div>
               )}
@@ -455,13 +553,13 @@ function DearNoBody() {
             {/* Bottom Controls Area */}
             <div className="shrink-0 border-t-2 border-ink p-3 md:p-4 space-y-2.5 bg-paper">
               {warning && (
-                <p className="border-2 border-brand bg-surface px-3 py-2 text-xs font-semibold text-brand">
-                  {warning}
+                <p className="border-2 border-brand bg-surface px-3 py-2 text-xs font-semibold text-brand rounded-lg">
+                  ⚠️ {warning}
                 </p>
               )}
               {error && (
-                <p className="border-2 border-ink bg-surface px-3 py-2 text-xs font-semibold">
-                  {error}
+                <p className="border-2 border-ink bg-surface px-3 py-2 text-xs font-semibold rounded-lg">
+                  🛑 {error}
                 </p>
               )}
               <div className="flex gap-2">
@@ -473,35 +571,155 @@ function DearNoBody() {
                     setWarning(null);
                   }}
                   onKeyDown={(e) => e.key === "Enter" && send()}
-                  placeholder={`Vent something at ${nemesis.nickname}…`}
-                  className="grow rounded-lg border-2 border-ink bg-surface px-3.5 py-2.5 text-sm font-medium placeholder:text-ink/30 focus:border-brand focus:outline-none transition-colors"
+                  placeholder={
+                    mode === "villain"
+                      ? `Call out ${nemesis.nickname}'s ridiculous behavior…`
+                      : `Vent something at ${nemesis.nickname}…`
+                  }
+                  className="grow rounded-xl border-2 border-ink bg-surface px-4 py-2.5 text-sm font-medium placeholder:text-ink/30 focus:border-brand focus:outline-none transition-colors shadow-[2px_2px_0px_0px_var(--color-ink)]"
                 />
                 <button
                   onClick={send}
                   disabled={thinking || !draft.trim()}
-                  className="slant whitespace-nowrap bg-brand px-5 py-2.5 font-display text-sm uppercase tracking-wide text-ink transition-colors hover:bg-ink hover:text-paper disabled:opacity-40 cursor-pointer shadow-[2px_2px_0px_0px_var(--color-ink)]"
+                  className="slant whitespace-nowrap bg-brand px-5 py-2.5 font-display text-sm uppercase tracking-wide text-ink transition-all hover:bg-ink hover:text-paper disabled:opacity-40 cursor-pointer shadow-[2px_2px_0px_0px_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5"
                 >
-                  Send
+                  💥 Vent!
                 </button>
               </div>
+
+              {/* Erase button triggers confirmation modal */}
               <button
-                onClick={endSession}
-                className="slant flex w-full items-center justify-center gap-2 bg-ink px-3 py-2.5 font-display text-base uppercase tracking-wide text-paper transition-colors hover:bg-brand hover:text-ink cursor-pointer shadow-[2px_2px_0px_0px_var(--color-brand)] active:translate-x-0.5 active:translate-y-0.5"
+                type="button"
+                onClick={requestErase}
+                className="slant flex w-full items-center justify-center gap-2 bg-ink px-3 py-2.5 font-display text-base uppercase tracking-wide text-paper transition-all hover:bg-brand hover:text-ink cursor-pointer shadow-[3px_3px_0px_0px_var(--color-brand)] active:translate-x-0.5 active:translate-y-0.5"
               >
-                <span className="bg-brand px-1.5 py-0.5 font-body text-[9px] font-bold uppercase tracking-wide text-ink">
-                  Final
+                <span className="bg-brand px-1.5 py-0.5 font-body text-[9px] font-bold uppercase tracking-wide text-ink rounded">
+                  POOF
                 </span>
-                End session — wipe everything
+                <span>💥 Wipe Every Trace! (Instant Reset) 💨</span>
               </button>
             </div>
           </section>
         </main>
       )}
 
+      {/* Wipe Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 bg-ink/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-paper border-3 border-ink rounded-3xl p-6 max-w-md w-full shadow-[6px_6px_0px_0px_var(--color-ink)] space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-2">
+              <span className="slant bg-brand px-2.5 py-0.5 font-display text-xs text-ink border border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                CONFIRM WIPE
+              </span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-ink/60">
+                Double Check
+              </span>
+            </div>
+
+            <h3 className="font-display text-2xl uppercase tracking-tight text-ink">
+              Erase Everything & Poof? 💥
+            </h3>
+
+            <p className="text-sm text-ink/75 leading-relaxed font-medium">
+              Are you sure you want to end this session? Once confirmed, all rants with <span className="font-bold text-ink">{nemesis?.nickname}</span> will be permanently destroyed with zero logs kept.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                className="slant flex-1 bg-surface border-2 border-ink px-4 py-2.5 font-display text-sm uppercase tracking-wide text-ink hover:bg-ink/10 cursor-pointer transition-colors shadow-[2px_2px_0px_0px_var(--color-ink)]"
+              >
+                Keep Venting
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmErase}
+                className="slant flex-1 bg-brand border-2 border-ink px-4 py-2.5 font-display text-sm uppercase tracking-wide text-ink hover:bg-ink hover:text-paper cursor-pointer transition-all shadow-[2px_2px_0px_0px_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5"
+              >
+                Yes, Wipe It! 💨
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rant Relief Report Modal */}
+      {showReportModal && reportStats && (
+        <div className="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-paper border-3 border-ink rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-[8px_8px_0px_0px_var(--color-brand)] space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            {/* Header Stamp */}
+            <div className="flex items-center justify-between">
+              <span className="slant bg-accent-yellow px-3 py-1 font-display text-xs uppercase tracking-wider text-ink border-2 border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                📜 Official Rant Report
+              </span>
+              <span className="text-2xl animate-bounce">✨</span>
+            </div>
+
+            <div>
+              <h2 className="font-display text-3xl sm:text-4xl uppercase tracking-tight text-ink leading-none">
+                You Said Your <span className="text-brand">Heart Out!</span>
+              </h2>
+              <p className="mt-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-ink/50">
+                All frustration released • 100% ephemeral relief
+              </p>
+            </div>
+
+            {/* Fun Stats Grid */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="bg-surface border-2 border-ink p-3 rounded-2xl shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">💬 Rants Spoken</p>
+                <p className="font-display text-2xl text-ink mt-0.5">{reportStats.rantCount}</p>
+                <p className="text-[10px] text-ink/60 font-medium">Unfiltered truths told</p>
+              </div>
+
+              <div className="bg-surface border-2 border-ink p-3 rounded-2xl shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">🥊 Target Defeated</p>
+                <p className="font-display text-lg text-brand mt-1 truncate">{reportStats.rivalName}</p>
+                <p className="text-[10px] text-ink/60 font-medium">{reportStats.mode === "villain" ? "Ego crushed" : "Conceded completely"}</p>
+              </div>
+
+              <div className="bg-surface border-2 border-ink p-3 rounded-2xl shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">❤️ Heart Status</p>
+                <p className="font-display text-xl text-ink mt-0.5">Relieved & Light</p>
+                <p className="text-[10px] text-ink/60 font-medium">No lingering weight</p>
+              </div>
+
+              <div className="bg-surface border-2 border-ink p-3 rounded-2xl shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">🔒 Privacy Status</p>
+                <p className="font-display text-xl text-brand mt-0.5">100% Vanished</p>
+                <p className="text-[10px] text-ink/60 font-medium">Zero evidence left</p>
+              </div>
+            </div>
+
+            {/* Uplifting Catharsis Message */}
+            <div className="bg-accent-yellow/30 border-2 border-ink/30 rounded-2xl p-3.5 flex items-start gap-3">
+              <span className="text-2xl">🌱</span>
+              <p className="text-xs font-medium text-ink/80 leading-relaxed">
+                You let out everything you couldn't say in real life, spoke your heart freely, and left zero mess behind. Take a deep breath, smile, and go have a wonderful day!
+              </p>
+            </div>
+
+            {/* Action CTA */}
+            <button
+              type="button"
+              onClick={handleFinishReport}
+              className="slant w-full bg-ink px-4 py-3 font-display text-base uppercase tracking-wide text-paper transition-all hover:bg-brand hover:text-ink cursor-pointer shadow-[4px_4px_0px_0px_var(--color-brand)] active:translate-x-0.5 active:translate-y-0.5 flex items-center justify-center gap-2"
+            >
+              <span>✨ Start Fresh & Feel Good ✨</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Pinned Bottom Footer */}
-      <footer className="shrink-0 flex items-center justify-between border-t-2 border-ink px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-ink/40 md:px-8 bg-paper">
-        <span>Nothing here is saved. Nothing here is real.</span>
-        <span className="hidden sm:inline">Please don't actually be mean to people.</span>
+      <footer className="shrink-0 flex items-center justify-between border-t-2 border-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-ink/40 md:px-8 bg-paper">
+        <span className="flex items-center gap-1.5">
+          <span>🪄</span> Nothing here is saved. Nothing here is real.
+        </span>
+        <span className="hidden sm:inline">
+          🤗 Pure comedic stress-relief • Please be nice in real life!
+        </span>
       </footer>
     </div>
   );
