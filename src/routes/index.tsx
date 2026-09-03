@@ -31,12 +31,9 @@ type Msg = { role: "user" | "assistant"; content: string };
 type NemesisMode = "pushover" | "villain";
 
 const VENT_SPARKS = [
-  "🐟 9 AM-ന് മീൻ വറുത്തവൻ",
-  "☕ ചായ ഫ്ലാസ്ക് കാലിയാക്കിവെച്ചവൻ",
-  "📧 വെറുതെ 'Thanks!' എന്ന് Reply-All ഇടുന്നവൻ",
-  "⏰ വെള്ളിയാഴ്ച 4:59-ന് Meeting വെച്ചവൻ",
-  "🍗 ബിരിയാണിയിലെ Leg Piece തട്ടിയെടുത്തവൻ",
-  "👀 'Per my last email' സ്മൈലി അയക്കുന്നവൻ",
+  "🐟 Microwaves fish at 9 AM",
+  "📧 Replies-all with just 'Thanks!'",
+  "⏰ Books 4:59 PM Friday meetings",
 ];
 
 function getRantBadge(count: number) {
@@ -86,6 +83,7 @@ function DearNoBody() {
       return `${prev.trim()}, ${clean}`;
     });
     setWarning(null);
+    setError(null);
   }
 
   async function summon() {
@@ -263,20 +261,17 @@ function DearNoBody() {
           </section>
 
           {/* Right Column: Setup Form & Comedy Mode Selector */}
-          <section className="lg:col-span-7 p-6 md:p-10 flex flex-col justify-center overflow-y-auto">
-            <div className="max-w-xl mx-auto w-full space-y-5 pt-8 sm:pt-0">
+          <section className="lg:col-span-7 p-6 md:p-10 pt-16 sm:pt-20 flex flex-col justify-center overflow-y-auto">
+            <div className="max-w-xl mx-auto w-full space-y-5">
               {/* Step 01: Description */}
               <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="slant bg-brand px-2 py-0.5 font-display text-xs text-ink border border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
-                      STEP 01
-                    </span>
-                    <label htmlFor="nemesis-description" className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink/60">
-                      ആരാണ് നിങ്ങളുടെ വില്ലൻ?
-                    </label>
-                  </div>
-                  <span className="text-[10px] font-semibold text-ink/40">Manglish / Malayalam / English</span>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="slant bg-brand px-2 py-0.5 font-display text-xs text-ink border border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
+                    STEP 01
+                  </span>
+                  <label htmlFor="nemesis-description" className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink/60">
+                    ആരാണ് നിങ്ങളുടെ വില്ലൻ?
+                  </label>
                 </div>
 
                 <textarea
@@ -310,9 +305,14 @@ function DearNoBody() {
                   </div>
                 </div>
 
-                <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-ink/40 flex items-center gap-1">
-                  <span>🔒</span> Strictly fictional — no real names or public figures.
-                </p>
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[10px] font-semibold text-ink/50">
+                  <span className="flex items-center gap-1">
+                    <span>🌐</span> Manglish / Malayalam / English supported
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span>🔒</span> Strictly fictional • No real names
+                  </span>
+                </div>
               </div>
 
               {/* Step 02: Mode Selector */}
@@ -345,7 +345,7 @@ function DearNoBody() {
                             : "bg-ink/10 text-ink/70"
                         }`}
                       >
-                        🥺 പാവം തോൽവി
+                        🥺 പാവത്താൻ (Pavathan)
                       </span>
                       <span className="text-lg">👉👈</span>
                     </div>
@@ -407,7 +407,7 @@ function DearNoBody() {
                 disabled={busy || description.trim().length < 3}
                 className="slant w-full bg-ink px-4 py-3.5 font-display text-lg uppercase tracking-wide text-paper transition-all hover:bg-brand hover:text-ink disabled:opacity-40 shadow-[4px_4px_0px_0px_var(--color-brand)] active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>{busy ? "🎨 വരച്ചുണ്ടാക്കുന്നു…" : mode === "villain" ? "⚡ സീൻ വില്ലനെ വിളിക്ക്!" : "🥺 പാവം തോൽവിയെ വിളിക്ക്!"}</span>
+                <span>{busy ? "🎨 വരച്ചുണ്ടാക്കുന്നു…" : mode === "villain" ? "⚡ സീൻ വില്ലനെ വിളിക്ക്!" : "🥺 പാവത്താനെ (Pavathan) വിളിക്ക്!"}</span>
               </button>
             </div>
           </section>
@@ -433,7 +433,7 @@ function DearNoBody() {
                   </span>
                 </div>
                 <span className="slant bg-accent-yellow px-2.5 py-0.5 font-display text-[11px] uppercase tracking-wide text-ink border border-ink shadow-[1px_1px_0px_0px_var(--color-ink)] whitespace-nowrap">
-                  {mode === "villain" ? "🦹‍♂️ സീൻ വില്ലൻ" : "🥺 പാവം തോൽവി"}
+                  {mode === "villain" ? "🦹‍♂️ സീൻ വില്ലൻ" : "🥺 പാവത്താൻ (Pavathan)"}
                 </span>
               </div>
 
@@ -531,7 +531,7 @@ function DearNoBody() {
                           <span>{mode === "villain" ? "🦹‍♂️" : "🥺"}</span> {nemesis.nickname}
                         </p>
                         <span className="text-[8px] font-bold uppercase px-1.5 py-0.2 bg-ink/10 rounded-full text-ink/60">
-                          {mode === "villain" ? "സീൻ വില്ലൻ" : "പാവം തോൽവി"}
+                          {mode === "villain" ? "സീൻ വില്ലൻ" : "പാവത്താൻ (Pavathan)"}
                         </span>
                       </div>
                       <p className="text-sm font-medium leading-relaxed">{m.content}</p>
@@ -583,7 +583,7 @@ function DearNoBody() {
                   disabled={thinking || !draft.trim()}
                   className="slant whitespace-nowrap bg-brand px-5 py-2.5 font-display text-sm uppercase tracking-wide text-ink transition-all hover:bg-ink hover:text-paper disabled:opacity-40 cursor-pointer shadow-[2px_2px_0px_0px_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5"
                 >
-                  💥 Vent!
+                  Send
                 </button>
               </div>
 
