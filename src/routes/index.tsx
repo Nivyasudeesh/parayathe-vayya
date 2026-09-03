@@ -3,17 +3,18 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { createNemesis, ventToNemesis } from "@/lib/nemesis.functions";
 import { detectPii, piiWarning } from "@/lib/pii";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Dear NoBody — Vent At A Cartoon Nemesis" },
+      { title: "പറയാതെ വയ്യ (Parayathe Vayya) — Vent At A Cartoon Nemesis" },
       {
         name: "description",
         content:
           "Describe a fictional nemesis, get a comedic cartoon caricature, and vent at it. Nothing is saved — everything vanishes when the session ends.",
       },
-      { property: "og:title", content: "Dear NoBody — Vent At A Cartoon Nemesis" },
+      { property: "og:title", content: "പറയാതെ വയ്യ (Parayathe Vayya) — Vent At A Cartoon Nemesis" },
       {
         property: "og:description",
         content:
@@ -132,19 +133,22 @@ function DearNoBody() {
       <header className="flex items-center justify-between border-b-2 border-ink px-6 py-5 md:px-12">
         <div className="flex items-center gap-3">
           <span className="slant bg-ink px-3 py-1 font-display text-lg tracking-wide text-paper">
-            DEAR NOBODY
+            പറയാതെ വയ്യ
           </span>
           <span className="hidden text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/50 sm:inline">
-            Stress-relief vent
+            Parayathe Vayya • Stress-relief vent
           </span>
         </div>
-        <nav className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
-          <span className={nemesis ? "text-ink/50" : "text-brand"}>01 Describe</span>
-          <span className="text-ink/30">/</span>
-          <span className={nemesis ? "text-brand" : "text-ink/50"}>02 Vent</span>
-          <span className="text-ink/30">/</span>
-          <span className="text-ink/50">03 Wipe</span>
-        </nav>
+        <div className="flex items-center gap-4">
+          <nav className="hidden items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] sm:flex">
+            <span className={nemesis ? "text-ink/50" : "text-brand"}>01 Describe</span>
+            <span className="text-ink/30">/</span>
+            <span className={nemesis ? "text-brand" : "text-ink/50"}>02 Vent</span>
+            <span className="text-ink/30">/</span>
+            <span className="text-ink/50">03 Wipe</span>
+          </nav>
+          <ThemeToggle />
+        </div>
       </header>
 
       <div className="relative overflow-hidden border-b-2 border-ink">
@@ -187,18 +191,18 @@ function DearNoBody() {
               }}
               rows={5}
               placeholder="Traits, habits, vibe. Hijacks every meeting, microwaves fish, replies-all with a thumbs up…"
-              className="mt-5 w-full resize-none rounded-lg border-2 border-ink bg-white px-4 py-3 text-sm font-medium placeholder:text-ink/30 focus:border-brand focus:outline-none"
+              className="mt-5 w-full resize-none rounded-lg border-2 border-ink bg-surface px-4 py-3 text-sm font-medium placeholder:text-ink/30 focus:border-brand focus:outline-none"
             />
             <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-ink/40">
               No real names or photos — this stays fictional and silly.
             </p>
             {warning && (
-              <p className="mt-4 border-2 border-brand bg-white px-4 py-3 text-sm font-semibold text-brand">
+              <p className="mt-4 border-2 border-brand bg-surface px-4 py-3 text-sm font-semibold text-brand">
                 {warning}
               </p>
             )}
             {error && (
-              <p className="mt-4 border-2 border-ink bg-white px-4 py-3 text-sm font-semibold">
+              <p className="mt-4 border-2 border-ink bg-surface px-4 py-3 text-sm font-semibold">
                 {error}
               </p>
             )}
@@ -292,7 +296,7 @@ function DearNoBody() {
                   </div>
                 ) : (
                   <div key={i} className="flex justify-start">
-                    <div className="max-w-[78%] rounded-2xl rounded-bl-sm border-2 border-ink bg-white px-4 py-3">
+                    <div className="max-w-[78%] rounded-2xl rounded-bl-sm border-2 border-ink bg-surface px-4 py-3">
                       <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-brand">
                         {nemesis.nickname}
                       </p>
@@ -303,7 +307,7 @@ function DearNoBody() {
               )}
               {thinking && (
                 <div className="flex justify-start">
-                  <div className="rounded-2xl rounded-bl-sm border-2 border-ink bg-white px-4 py-3 text-sm font-medium text-ink/50">
+                  <div className="rounded-2xl rounded-bl-sm border-2 border-ink bg-surface px-4 py-3 text-sm font-medium text-ink/50">
                     typing something smug…
                   </div>
                 </div>
@@ -313,12 +317,12 @@ function DearNoBody() {
 
             <div className="space-y-4 border-t-2 border-ink px-6 py-6 md:px-8">
               {warning && (
-                <p className="border-2 border-brand bg-white px-4 py-3 text-sm font-semibold text-brand">
+                <p className="border-2 border-brand bg-surface px-4 py-3 text-sm font-semibold text-brand">
                   {warning}
                 </p>
               )}
               {error && (
-                <p className="border-2 border-ink bg-white px-4 py-3 text-sm font-semibold">
+                <p className="border-2 border-ink bg-surface px-4 py-3 text-sm font-semibold">
                   {error}
                 </p>
               )}
@@ -332,7 +336,7 @@ function DearNoBody() {
                   }}
                   onKeyDown={(e) => e.key === "Enter" && send()}
                   placeholder={`Vent something at ${nemesis.nickname}…`}
-                  className="grow rounded-lg border-2 border-ink bg-white px-4 py-3 text-sm font-medium placeholder:text-ink/30 focus:border-brand focus:outline-none"
+                  className="grow rounded-lg border-2 border-ink bg-surface px-4 py-3 text-sm font-medium placeholder:text-ink/30 focus:border-brand focus:outline-none"
                 />
                 <button
                   onClick={send}

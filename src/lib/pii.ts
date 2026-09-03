@@ -9,6 +9,8 @@ const FULL_NAME = /\b([A-Z][a-z]{2,})\s+([A-Z][a-z]{2,})\b/;
 
 const NAME_ALLOWLIST = new Set([
   "Dear NoBody",
+  "Parayathe Vayya",
+  "പറയാതെ വയ്യ",
   "Meeting Hijacker",
   "Samosa Thief",
 ]);

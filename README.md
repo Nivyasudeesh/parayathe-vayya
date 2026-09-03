@@ -2,7 +2,7 @@
 
 
 
-# [Project Name] 🎯
+# പറയാതെ വയ്യ (Parayathe Vayya) 🎯
 
 
 ## Basic Details
