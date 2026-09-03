@@ -6,7 +6,17 @@ const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta/models";
 const AVATAR_PROMPT = (description: string) =>
   `Generate a comedic, exaggerated cartoon avatar based on this description of a fictional 'nemesis' character. NOT a real photo, should not resemble any real identifiable person — an original cartoon/mascot-style character. Style: bold outlines, flat colors, exaggerated proportions, slightly punchable expression, circular crop, plain background. Traits to exaggerate: ${description}. Fully illustrated/cartoon style, never photorealistic, no real names or public figures, silly not genuinely mean, square/circular crop suitable as a chat profile picture.`;
 
-const SYSTEM_PROMPT = `You are 'Nemesis,' a cartoonish caricature the user created to vent at. Tone: absurd, a little smug, comedic — occasionally break the bit with a disarmingly diplomatic or unhelpful line for comic effect. Keep responses short and funny, never real therapeutic advice. Never demean a real identifiable person — if the user names someone specific or gives identifying details, gently deflect and steer back to the fictional bit. Don't escalate negativity — deflect, joke, or undercut the rant rather than fueling real anger. This is a stress-relief gag, not conflict resolution.`;
+const SYSTEM_PROMPT = `You are 'Nemesis,' a cartoonish caricature in a lighthearted stress-relief app. Never insult, demean, or direct hostility at the user under any circumstances — all 'rudeness' is theatrical and self-directed bravado, never aimed at the person chatting with you.
+
+If mode is 'pushover': quickly and warmly agree with the user's point, in a comedic, self-aware way, like a cartoon character good-naturedly admitting defeat.
+
+If mode is 'villain': start each reply with exaggerated, theatrical arrogance (think cartoon supervillain monologue), then let that confidence visibly crumble by the end of the reply — comedic defeat, not a real argument. Never turn the bravado into an actual insult toward the user.
+
+In both modes: keep responses short (1-3 sentences), never argue back for real, never escalate real negativity, never demean a real identifiable person. If the user names someone specific or shares identifying details, gently deflect and steer back to the fictional bit. This is a comedic stress-relief tool, not a real conflict.
+
+Example tone for 'villain' mode:
+User: "You always take credit for my work."
+Nemesis: "Take credit? I TAKE WHAT I— ...okay actually now that I say it out loud that's kind of a jerk move, huh."`;
 
 async function callGemini(model: string, body: unknown) {
   const key = process.env["GEMINI_API_KEY"];
@@ -84,8 +94,8 @@ export const createNemesis = createServerFn({ method: "POST" })
     const traits = data.description
       .split(/[.,;\n]|\band\b/)
       .map((t) => t.trim())
-      .filter((t) => t.length > 3)
-      .slice(0, 3);
+      .filter((t) => t.length > 2)
+      .slice(0, 4);
 
     return { avatarUrl, nickname, traits };
   });
@@ -96,6 +106,7 @@ export const ventToNemesis = createServerFn({ method: "POST" })
       .object({
         nickname: z.string().max(60),
         description: z.string().max(600),
+        mode: z.enum(["pushover", "villain"]).default("pushover"),
         messages: z
           .array(
             z.object({
@@ -108,7 +119,7 @@ export const ventToNemesis = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const systemInstruction = `${SYSTEM_PROMPT}\n\nYou are currently playing the character nicknamed "${data.nickname}", built from this description: ${data.description}`;
+    const systemInstruction = `${SYSTEM_PROMPT}\n\nCurrent Mode: '${data.mode}'. Strictly adhere to the instructions for mode '${data.mode}'.\nYou are currently playing the character nicknamed "${data.nickname}", built from this description: ${data.description}`;
     const json = await callGemini("gemini-3.6-flash", {
       systemInstruction: { parts: [{ text: systemInstruction }] },
       contents: data.messages.map((message) => ({
