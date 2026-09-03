@@ -12,13 +12,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Describe a fictional nemesis, get a comedic cartoon caricature, and vent at it. Nothing is saved — everything vanishes when the session ends.",
+          "Describe a fictional nemesis, get a comedic cartoon caricature, and vent at it in Manglish, Malayalam, or English. Nothing is saved — everything vanishes when the session ends.",
       },
       { property: "og:title", content: "പറയാതെ വയ്യ (Parayathe Vayya) — Vent At A Cartoon Nemesis" },
       {
         property: "og:description",
         content:
-          "A useless, lighthearted stress-relief gag: rant at a cartoon caricature that forgets everything.",
+          "A useless, lighthearted stress-relief gag: rant at a cartoon caricature in Manglish that forgets everything.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -31,19 +31,19 @@ type Msg = { role: "user" | "assistant"; content: string };
 type NemesisMode = "pushover" | "villain";
 
 const VENT_SPARKS = [
-  "🐟 Microwaves fish at 9 AM",
-  "📧 Replies-all with 'Thanks!'",
-  "☕ Steals labeled oat milk",
-  "📆 Books 4:59 PM Friday meetings",
-  "🎧 Loud mechanical keyboard on Zoom",
-  "👀 'Per my last email' with smiley faces",
+  "🐟 9 AM-ന് മീൻ വറുത്തവൻ",
+  "☕ ചായ ഫ്ലാസ്ക് കാലിയാക്കിവെച്ചവൻ",
+  "📧 വെറുതെ 'Thanks!' എന്ന് Reply-All ഇടുന്നവൻ",
+  "⏰ വെള്ളിയാഴ്ച 4:59-ന് Meeting വെച്ചവൻ",
+  "🍗 ബിരിയാണിയിലെ Leg Piece തട്ടിയെടുത്തവൻ",
+  "👀 'Per my last email' സ്മൈലി അയക്കുന്നവൻ",
 ];
 
 function getRantBadge(count: number) {
-  if (count > 8) return { emoji: "🌋", label: "Volcanic Tantrum", color: "bg-brand text-ink" };
-  if (count > 5) return { emoji: "🔥", label: "Boiling Teapot", color: "bg-brand/80 text-ink" };
-  if (count > 2) return { emoji: "😤", label: "Grumpy Pufferfish", color: "bg-accent-yellow text-ink" };
-  return { emoji: "😊", label: "Mildly Pouted", color: "bg-surface text-ink" };
+  if (count > 8) return { emoji: "🌋", label: "ആകെ കിളി പോയി!", color: "bg-brand text-ink" };
+  if (count > 5) return { emoji: "🔥", label: "ചൂട് കയറി!", color: "bg-brand/80 text-ink" };
+  if (count > 2) return { emoji: "😤", label: "സീൻ കോൺട്രാ!", color: "bg-accent-yellow text-ink" };
+  return { emoji: "😊", label: "ചെറിയ ദേഷ്യം", color: "bg-surface text-ink" };
 }
 
 function DearNoBody() {
@@ -105,8 +105,8 @@ function DearNoBody() {
           role: "assistant",
           content:
             mode === "villain"
-              ? "MWAHAHA! You dare summon ME?! Prepare to face my unbridled genius! ...Wait, why are you glaring at me? What did I do now?"
-              : "Oh good, you're here. Let me guess — this is somehow my fault. (Sighs... I'm already sorry).",
+              ? "Aahaa! MWAHAHA! Nee enne aano vilichu വരുത്തിയേ?! Ente power ninakkariyilla! ...Wait, entha angane nokkunne? Njan ipo entha cheythe?"
+              : "Oh pinne, nee vannallo. Let me guess — ithum ente thettaanu le? Ayyoo sorry bro!",
         },
       ]);
     } catch (e) {
@@ -215,10 +215,10 @@ function DearNoBody() {
             <div className="relative z-10">
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <span className="slant bg-accent-yellow px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-ink border-2 border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
-                  🥊 Punchable Cartoon Therapy
+                  🥊 തഗ്ഗ് തെറാപ്പി
                 </span>
                 <span className="slant bg-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-ink border-2 border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
-                  🗯️ 100% Fictional
+                  🗯️ 100% കോമഡി
                 </span>
               </div>
 
@@ -242,7 +242,7 @@ function DearNoBody() {
               </div>
 
               <p className="mt-3 max-w-md text-sm font-medium text-ink/75 leading-relaxed md:text-base">
-                Got someone who chews loudly or steals your lunch? Invent a silly cartoon caricature, pick their personality, vent all your frustration, and watch their confidence hilariously crumble!
+                ഓഫീസിലോ ലൈഫിലോ കലിപ്പായ ആൾക്കാരുണ്ടോ? മനസ്സിൽ തോന്നിയതൊക്കെ പറയാം — ആരും അറിയാതെ, ഒരു തെളിവും ഇല്ലാതെ! Type in Manglish, Malayalam, or English and watch them comically collapse!
               </p>
 
               {poofNote && (
@@ -257,7 +257,7 @@ function DearNoBody() {
             <div className="relative z-10 mt-6 pt-6 border-t-2 border-ink/10 hidden sm:block">
               <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-ink/60">
                 <span className="h-2 w-2 rounded-full bg-brand animate-ping" />
-                🪄 Nothing is saved • No logs • Everything poofs when done
+                🪄 ഒരു ഡാറ്റയും സേവ് ചെയ്യില്ല • 100% Private • Everything poofs
               </div>
             </div>
           </section>
@@ -273,10 +273,10 @@ function DearNoBody() {
                       STEP 01
                     </span>
                     <label htmlFor="nemesis-description" className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink/60">
-                      Who is your comedic rival?
+                      ആരാണ് നിങ്ങളുടെ വില്ലൻ?
                     </label>
                   </div>
-                  <span className="text-[10px] font-semibold text-ink/40">Keep it silly!</span>
+                  <span className="text-[10px] font-semibold text-ink/40">Manglish / Malayalam / English</span>
                 </div>
 
                 <textarea
@@ -287,14 +287,14 @@ function DearNoBody() {
                     setWarning(null);
                   }}
                   rows={3}
-                  placeholder="Traits, annoying habits, vibe. e.g. Hijacks meetings, microwaves fish, writes 'per my last email' with smiley faces…"
+                  placeholder="Traits & annoying habits. e.g. Ee meeting muzhuvan hijack cheyyum, 9 AM-nu fish microwave cheyyum, chumma 'Thanks!' ennu reply-all idum…"
                   className="mt-2 w-full resize-none rounded-xl border-2 border-ink bg-surface px-4 py-3 text-sm font-medium placeholder:text-ink/35 focus:border-brand focus:outline-none transition-colors shadow-[3px_3px_0px_0px_var(--color-ink)]"
                 />
 
-                {/* Quick Vent Sparks (Clickable comedy ideas) */}
+                {/* Quick Vent Sparks */}
                 <div className="mt-2.5">
                   <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-ink/50 mb-1.5 flex items-center gap-1">
-                    <span>💡</span> Click an annoying habit spark to add:
+                    <span>💡</span> Click an annoying habit spark:
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {VENT_SPARKS.map((spark, idx) => (
@@ -322,7 +322,7 @@ function DearNoBody() {
                     STEP 02
                   </span>
                   <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink/60">
-                    Pick Their Personality Style
+                    Pick Personality Style
                   </span>
                 </div>
 
@@ -345,7 +345,7 @@ function DearNoBody() {
                             : "bg-ink/10 text-ink/70"
                         }`}
                       >
-                        🥺 The Pushover
+                        🥺 പാവം തോൽവി
                       </span>
                       <span className="text-lg">👉👈</span>
                     </div>
@@ -353,7 +353,7 @@ function DearNoBody() {
                       Instant Apology & Surrender
                     </p>
                     <p className="mt-1 text-[11px] leading-relaxed text-ink/70 italic">
-                      “You're totally right! I'm so sorry, please don't yell at me!”
+                      “Ayyoo ente thettaanu bro, please enne thallalle!”
                     </p>
                   </button>
 
@@ -375,7 +375,7 @@ function DearNoBody() {
                             : "bg-ink/10 text-ink/70"
                         }`}
                       >
-                        🦹‍♂️ Cartoon Villain
+                        🦹‍♂️ സീൻ വില്ലൻ
                       </span>
                       <span className="text-lg">⚡</span>
                     </div>
@@ -383,7 +383,7 @@ function DearNoBody() {
                       Theatrical Monologue & Collapse
                     </p>
                     <p className="mt-1 text-[11px] leading-relaxed text-ink/70 italic">
-                      “MWAHAHA! Tremble at my— ...wait, actually that was kinda mean, my bad.”
+                      “MWAHAHA! Njan aara mon! ...Wait, sherikkum athu thettaanu, sorry!”
                     </p>
                   </button>
                 </div>
@@ -407,7 +407,7 @@ function DearNoBody() {
                 disabled={busy || description.trim().length < 3}
                 className="slant w-full bg-ink px-4 py-3.5 font-display text-lg uppercase tracking-wide text-paper transition-all hover:bg-brand hover:text-ink disabled:opacity-40 shadow-[4px_4px_0px_0px_var(--color-brand)] active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>{busy ? "🎨 Sketching caricature…" : mode === "villain" ? "⚡ Summon The Dramatic Villain!" : "🥺 Summon The Apologetic Rival!"}</span>
+                <span>{busy ? "🎨 വരച്ചുണ്ടാക്കുന്നു…" : mode === "villain" ? "⚡ സീൻ വില്ലനെ വിളിക്ക്!" : "🥺 പാവം തോൽവിയെ വിളിക്ക്!"}</span>
               </button>
             </div>
           </section>
@@ -433,7 +433,7 @@ function DearNoBody() {
                   </span>
                 </div>
                 <span className="slant bg-accent-yellow px-2.5 py-0.5 font-display text-[11px] uppercase tracking-wide text-ink border border-ink shadow-[1px_1px_0px_0px_var(--color-ink)] whitespace-nowrap">
-                  {mode === "villain" ? "🦹‍♂️ Villain Mode" : "🥺 Pushover Mode"}
+                  {mode === "villain" ? "🦹‍♂️ സീൻ വില്ലൻ" : "🥺 പാവം തോൽവി"}
                 </span>
               </div>
 
@@ -482,7 +482,7 @@ function DearNoBody() {
                 disabled={busy}
                 className="slant w-full bg-surface border-2 border-ink px-3 py-2 font-display text-xs uppercase tracking-wide text-ink transition-all hover:bg-brand hover:text-ink disabled:opacity-40 cursor-pointer shadow-[2px_2px_0px_0px_var(--color-ink)] flex items-center justify-center gap-1.5"
               >
-                <span>🎨</span> {busy ? "Redrawing…" : "Redraw caricature"}
+                <span>🎨</span> {busy ? "വരച്ചുണ്ടാക്കുന്നു…" : "Redraw caricature"}
               </button>
             </div>
           </section>
@@ -493,14 +493,14 @@ function DearNoBody() {
             <div className="shrink-0 flex items-center justify-between border-b-2 border-ink px-4 py-3 md:px-6 bg-surface/40 gap-3">
               <div className="min-w-0">
                 <p className="font-display text-lg uppercase tracking-wide truncate flex items-center gap-1.5">
-                  <span>💬</span> Chat Room with {nemesis.nickname}
+                  <span>💬</span> Chat with {nemesis.nickname}
                 </p>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink/50 truncate">
-                  {mode === "villain" ? "Dramatic supervillain monologue • Watch it crumble" : "Instant humble apologies • Guaranteed concession"}
+                  {mode === "villain" ? "മാസ്സ് ഡയലോഗ് അടിക്കും, ഒടുവിൽ ചീറ്റും!" : "പെട്ടെന്ന് തന്നെ കൈകൂപ്പി തോറ്റു തരും!"}
                 </p>
               </div>
               <div className="flex items-center gap-2.5 shrink-0">
-                {/* Comedy Rant-O-Meter */}
+                {/* Comedy Rant-O-Meter in Manglish/Malayalam */}
                 <div
                   className={`slant px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide border-2 border-ink shadow-[2px_2px_0px_0px_var(--color-ink)] flex items-center gap-1 ${rantBadge.color}`}
                 >
@@ -531,7 +531,7 @@ function DearNoBody() {
                           <span>{mode === "villain" ? "🦹‍♂️" : "🥺"}</span> {nemesis.nickname}
                         </p>
                         <span className="text-[8px] font-bold uppercase px-1.5 py-0.2 bg-ink/10 rounded-full text-ink/60">
-                          {mode === "villain" ? "Dramatic collapse" : "Apologetic"}
+                          {mode === "villain" ? "സീൻ വില്ലൻ" : "പാവം തോൽവി"}
                         </span>
                       </div>
                       <p className="text-sm font-medium leading-relaxed">{m.content}</p>
@@ -543,7 +543,7 @@ function DearNoBody() {
                 <div className="flex justify-start">
                   <div className="rounded-3xl rounded-bl-xs border-2 border-ink bg-surface px-4 py-2.5 text-xs font-semibold text-ink/60 shadow-[2px_2px_0px_0px_var(--color-ink)] animate-pulse flex items-center gap-2">
                     <span className="text-base">💭</span>
-                    <span>{mode === "villain" ? "Concocting dramatic evil monologue…" : "Drafting instant humble surrender…"}</span>
+                    <span>{mode === "villain" ? "ഡയലോഗ് ആലോചിക്കുന്നു…" : "മാപ്പ് പറയാൻ റെഡിയാവുന്നു…"}</span>
                   </div>
                 </div>
               )}
@@ -573,8 +573,8 @@ function DearNoBody() {
                   onKeyDown={(e) => e.key === "Enter" && send()}
                   placeholder={
                     mode === "villain"
-                      ? `Call out ${nemesis.nickname}'s ridiculous behavior…`
-                      : `Vent something at ${nemesis.nickname}…`
+                      ? `${nemesis.nickname}-ഓട് എന്താ പറയാനുള്ളത്?…`
+                      : `${nemesis.nickname}-ഇട്ട് താങ്ങ്…`
                   }
                   className="grow rounded-xl border-2 border-ink bg-surface px-4 py-2.5 text-sm font-medium placeholder:text-ink/30 focus:border-brand focus:outline-none transition-colors shadow-[2px_2px_0px_0px_var(--color-ink)]"
                 />
@@ -596,7 +596,7 @@ function DearNoBody() {
                 <span className="bg-brand px-1.5 py-0.5 font-body text-[9px] font-bold uppercase tracking-wide text-ink rounded">
                   POOF
                 </span>
-                <span>💥 Wipe Every Trace! (Instant Reset) 💨</span>
+                <span>💥 എല്ലാം തൂത്തു തുടച്ച് കളയ് 💨</span>
               </button>
             </div>
           </section>
@@ -612,16 +612,16 @@ function DearNoBody() {
                 CONFIRM WIPE
               </span>
               <span className="text-[11px] font-bold uppercase tracking-wider text-ink/60">
-                Double Check
+                എല്ലാം ഡിലീറ്റ് ചെയ്യട്ടെ?
               </span>
             </div>
 
             <h3 className="font-display text-2xl uppercase tracking-tight text-ink">
-              Erase Everything & Poof? 💥
+              എല്ലാം മായ്ച്ച് കളയട്ടെ? 💥
             </h3>
 
             <p className="text-sm text-ink/75 leading-relaxed font-medium">
-              Are you sure you want to end this session? Once confirmed, all rants with <span className="font-bold text-ink">{nemesis?.nickname}</span> will be permanently destroyed with zero logs kept.
+              Are you sure? ഇതോടെ ഈ ചാറ്റും <span className="font-bold text-ink">{nemesis?.nickname}</span>-ഉം ആരും കാണാതെ മാഞ്ഞുപോകും. ഒരു തെളിവും ഉണ്ടാവില്ല!
             </p>
 
             <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
@@ -630,14 +630,14 @@ function DearNoBody() {
                 onClick={() => setShowConfirmModal(false)}
                 className="slant flex-1 bg-surface border-2 border-ink px-4 py-2.5 font-display text-sm uppercase tracking-wide text-ink hover:bg-ink/10 cursor-pointer transition-colors shadow-[2px_2px_0px_0px_var(--color-ink)]"
               >
-                Keep Venting
+                ഇറങ്ങിപ്പോകല്ലേ
               </button>
               <button
                 type="button"
                 onClick={handleConfirmErase}
                 className="slant flex-1 bg-brand border-2 border-ink px-4 py-2.5 font-display text-sm uppercase tracking-wide text-ink hover:bg-ink hover:text-paper cursor-pointer transition-all shadow-[2px_2px_0px_0px_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5"
               >
-                Yes, Wipe It! 💨
+                യെസ്, തൂത്ത് കളയ്! 💨
               </button>
             </div>
           </div>
@@ -651,44 +651,44 @@ function DearNoBody() {
             {/* Header Stamp */}
             <div className="flex items-center justify-between">
               <span className="slant bg-accent-yellow px-3 py-1 font-display text-xs uppercase tracking-wider text-ink border-2 border-ink shadow-[2px_2px_0px_0px_var(--color-ink)]">
-                📜 Official Rant Report
+                📜 ഔദ്യോഗിക റിപ്പോർട്ട്
               </span>
               <span className="text-2xl animate-bounce">✨</span>
             </div>
 
             <div>
               <h2 className="font-display text-3xl sm:text-4xl uppercase tracking-tight text-ink leading-none">
-                You Said Your <span className="text-brand">Heart Out!</span>
+                മനസ്സിലെ ഭാരം <span className="text-brand">ഇറക്കി വെച്ചു!</span>
               </h2>
               <p className="mt-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-ink/50">
-                All frustration released • 100% ephemeral relief
+                You said your heart out • 100% ephemeral relief
               </p>
             </div>
 
             {/* Fun Stats Grid */}
             <div className="grid grid-cols-2 gap-2.5">
               <div className="bg-surface border-2 border-ink p-3 rounded-2xl shadow-[2px_2px_0px_0px_var(--color-ink)]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">💬 Rants Spoken</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">💬 പറഞ്ഞ ഡയലോഗുകൾ</p>
                 <p className="font-display text-2xl text-ink mt-0.5">{reportStats.rantCount}</p>
-                <p className="text-[10px] text-ink/60 font-medium">Unfiltered truths told</p>
+                <p className="text-[10px] text-ink/60 font-medium">Unfiltered rants spoken</p>
               </div>
 
               <div className="bg-surface border-2 border-ink p-3 rounded-2xl shadow-[2px_2px_0px_0px_var(--color-ink)]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">🥊 Target Defeated</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">🥊 വില്ലന്റെ അവസ്ഥ</p>
                 <p className="font-display text-lg text-brand mt-1 truncate">{reportStats.rivalName}</p>
-                <p className="text-[10px] text-ink/60 font-medium">{reportStats.mode === "villain" ? "Ego crushed" : "Conceded completely"}</p>
+                <p className="text-[10px] text-ink/60 font-medium">{reportStats.mode === "villain" ? "സീൻ ഡൗൺ ആയി" : "പൂർണ്ണമായി തോറ്റു തന്നു"}</p>
               </div>
 
               <div className="bg-surface border-2 border-ink p-3 rounded-2xl shadow-[2px_2px_0px_0px_var(--color-ink)]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">❤️ Heart Status</p>
-                <p className="font-display text-xl text-ink mt-0.5">Relieved & Light</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">❤️ മനസ്സിന്റെ അവസ്ഥ</p>
+                <p className="font-display text-xl text-ink mt-0.5">ഫ്രീ & ലൈറ്റ്</p>
                 <p className="text-[10px] text-ink/60 font-medium">No lingering weight</p>
               </div>
 
               <div className="bg-surface border-2 border-ink p-3 rounded-2xl shadow-[2px_2px_0px_0px_var(--color-ink)]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">🔒 Privacy Status</p>
-                <p className="font-display text-xl text-brand mt-0.5">100% Vanished</p>
-                <p className="text-[10px] text-ink/60 font-medium">Zero evidence left</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-ink/50">🔒 പ്രൈവസി</p>
+                <p className="font-display text-xl text-brand mt-0.5">ആരും അറിഞ്ഞില്ല</p>
+                <p className="text-[10px] text-ink/60 font-medium">100% Vanished</p>
               </div>
             </div>
 
@@ -696,7 +696,7 @@ function DearNoBody() {
             <div className="bg-accent-yellow/30 border-2 border-ink/30 rounded-2xl p-3.5 flex items-start gap-3">
               <span className="text-2xl">🌱</span>
               <p className="text-xs font-medium text-ink/80 leading-relaxed">
-                You let out everything you couldn't say in real life, spoke your heart freely, and left zero mess behind. Take a deep breath, smile, and go have a wonderful day!
+                മനസ്സിൽ ഉള്ളതൊക്കെ പറഞ്ഞു തീർത്തു, ഭാരമൊക്കെ പോയി! No awkward real-life fight, no regrets. Take a deep breath, smile, and go rock your day! ✨
               </p>
             </div>
 
@@ -706,7 +706,7 @@ function DearNoBody() {
               onClick={handleFinishReport}
               className="slant w-full bg-ink px-4 py-3 font-display text-base uppercase tracking-wide text-paper transition-all hover:bg-brand hover:text-ink cursor-pointer shadow-[4px_4px_0px_0px_var(--color-brand)] active:translate-x-0.5 active:translate-y-0.5 flex items-center justify-center gap-2"
             >
-              <span>✨ Start Fresh & Feel Good ✨</span>
+              <span>✨ ഫ്രഷ് ആയി വീണ്ടും തുടങ്ങാം ✨</span>
             </button>
           </div>
         </div>
