@@ -56,14 +56,21 @@ For Software:
 For Software:
 
 ### Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+<img width="946" height="429" alt="image" src="https://github.com/user-attachments/assets/e20a0bbb-a209-46e7-8a7e-794a688452a8" />
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+Home page - user describes the person 
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+
+<img width="1917" height="879" alt="image" src="https://github.com/user-attachments/assets/82216d56-d64d-4885-818c-c5f57ff1be09" />
+Chat room - conversation with user and an imaginary cartoon
+
+
+<img width="696" height="455" alt="image" src="https://github.com/user-attachments/assets/63f293ed-459f-43a5-8db6-767be28cd0e9" />
+Confirmation to clear chat
+
+
+<img width="799" height="873" alt="image" src="https://github.com/user-attachments/assets/188773cf-8bf3-4ae0-9a20-b12bcb8aa8e7" />
+A small report on the chat
 
 # Project Demo
 ### Video
