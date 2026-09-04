@@ -74,8 +74,8 @@ A small report on the chat
 
 # Project Demo
 ### Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
+(https://drive.google.com/file/d/1mv9Q5bdhaIxuzb_oaa7K9rg6EI0OaS0h/view?usp=sharing)
+Displays how you describe the person and have an imaginary chat with them that gets erased on confirmation or exit of the page.
 
 ## Team Contributions
 - **Nivya Sudeesh**: 
