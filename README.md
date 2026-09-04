@@ -35,34 +35,27 @@ For Software:
 - **Tools**: Vite, Bun / Node.js, ESLint, Prettier, Git, Lovable
 
 
-### Implementation
+# Implementation
 For Software:
-# Installation
-```bash
-# Clone the repository
-git clone <your-repo-url>
-cd useless_project_temp
+## Installation
 
-# Install dependencies using npm or bun
-npm install
-# or
-bun install
+- Clone the repository : git clone <your-repo-url>
+                         cd useless_project_temp
+
+- Install dependencies using npm or bun : npm install (or) bun install
 
 
-# Run
-# Create a .env.local file and add your Google Gemini API key:
-# GEMINI_API_KEY=your_gemini_api_key_here
+### Run
+- Create a .env.local file and add your Google Gemini API key: GEMINI_API_KEY=your_gemini_api_key_here
 
-# Start the development server
-npm run dev
-# or
-bun dev
+## Start the development server
+- npm run dev (or) bun dev
 
 
-### Project Documentation
+## Project Documentation
 For Software:
 
-# Screenshots (Add at least 3)
+### Screenshots (Add at least 3)
 ![Screenshot1](Add screenshot 1 here with proper name)
 *Add caption explaining what this shows*
 
@@ -72,17 +65,10 @@ For Software:
 ![Screenshot3](Add screenshot 3 here with proper name)
 *Add caption explaining what this shows*
 
-# Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
-
-### Project Demo
-# Video
+# Project Demo
+### Video
 [Add your demo video link here]
 *Explain what the video demonstrates*
-
-# Additional Demos
-[Add any extra demo materials/links]
 
 ## Team Contributions
 - **Nivya Sudeesh**: 
